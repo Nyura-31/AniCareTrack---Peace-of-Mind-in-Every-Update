@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851241220515",
+    "project_id": "anicaretrack",
+    "storage_bucket": "anicaretrack.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851241220515:android:8374c765af64755470c216",
+        "android_client_info": {
+          "package_name": "com.example.anicaretrack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrDmcBzSD0SelQHfBlddln8Bdun9ovPEk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
