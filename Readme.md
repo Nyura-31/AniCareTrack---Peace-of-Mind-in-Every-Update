@@ -2,7 +2,7 @@
 
 # 🐾 AniCareTrack - Peace of mind in every update.
 
-### *A Trusted Discovery & Monitoring Platform for Urban Pet Care*
+### *A Trusted Discovery & Monitoring Platform for Pet Care*
 
 ---
 
