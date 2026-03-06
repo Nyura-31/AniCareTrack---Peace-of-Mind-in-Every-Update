@@ -19,100 +19,110 @@ class _SignupScreenState extends State<SignupScreen> {
 
   final AuthService _authService = AuthService();
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final Color primary = const Color(0xFF4A90E2);
+  final Color mint = const Color(0xFF7EDDD3);
+  final Color cream = const Color(0xFFFFF9F2);
+  final Color text = const Color(0xFF333333);
 
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    try {
-      final error = await _authService.signUp(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        role: selectedRole,
-      );
+    final error = await _authService.signUp(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      role: selectedRole,
+    );
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Account created successfully 🎉"),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Something went wrong: $e")),
+        const SnackBar(content: Text("Account created 🎉")),
       );
+      Navigator.pop(context);
     }
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
+    setState(() => _isLoading = false);
+  }
+
+  InputDecoration inputStyle(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: primary),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      backgroundColor: cream,
+      appBar: AppBar(
+        title: const Text("Create Account"),
+        backgroundColor: primary,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+
+              const SizedBox(height: 20),
+
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: "Email"),
-                keyboardType: TextInputType.emailAddress,
+                decoration: inputStyle("Email", Icons.email),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Email is required";
+                    return "Email required";
                   }
                   if (!value.contains('@')) {
-                    return "Enter a valid email";
+                    return "Enter valid email";
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
+
+              const SizedBox(height: 20),
+
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: "Password"),
                 obscureText: true,
+                decoration: inputStyle("Password", Icons.lock),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Password is required";
+                    return "Password required";
                   }
                   if (value.length < 6) {
-                    return "Password must be at least 6 characters";
+                    return "Minimum 6 characters";
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
 
               DropdownButtonFormField<String>(
                 value: selectedRole,
-                decoration: const InputDecoration(labelText: "Select Role"),
+                decoration: inputStyle("Select Role", Icons.person),
                 items: ['Owner', 'Walker']
-                    .map((role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
-                        ))
+                    .map(
+                      (role) => DropdownMenuItem(
+                        value: role,
+                        child: Text(role),
+                      ),
+                    )
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -125,18 +135,23 @@ class _SignupScreenState extends State<SignupScreen> {
 
               SizedBox(
                 width: double.infinity,
+                height: 50,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                   onPressed: _isLoading ? null : _handleSignup,
                   child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
                         )
-                      : const Text("Create Account"),
+                      : const Text(
+                          "Create Account",
+                          style: TextStyle(fontSize: 16),
+                        ),
                 ),
               ),
             ],
