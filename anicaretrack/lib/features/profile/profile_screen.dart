@@ -14,6 +14,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
   final _formKey = GlobalKey<FormState>();
 
   final _firestore = FirebaseFirestore.instance;
@@ -39,6 +40,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _rateController = TextEditingController();
 
   bool idVerified = false;
+
+  /// Colors
+  static const primaryColor = Color(0xFF4A90E2);
+  static const mintColor = Color(0xFF7EDDD3);
+  static const backgroundColor = Color(0xFFFFF9F2);
+  static const textColor = Color(0xFF333333);
+  static const accentColor = Color(0xFFFF7A7A);
 
   @override
   void initState() {
@@ -74,13 +82,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       setState(() => _isLoading = false);
+
     } catch (e) {
-      print(e);
       setState(() => _isLoading = false);
     }
   }
 
   Future<void> _pickImage() async {
+
     final picked = await picker.pickImage(source: ImageSource.gallery);
 
     if (picked != null) {
@@ -91,11 +100,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<String?> _uploadImage() async {
+
     if (_selectedImage == null) return profileImageUrl;
 
     final uid = _auth.currentUser!.uid;
 
-    final ref = _storage.ref().child('profile_images').child('$uid.jpg');
+    final ref = _storage
+        .ref()
+        .child('profile_images')
+        .child('$uid.jpg');
 
     await ref.putFile(_selectedImage!);
 
@@ -103,6 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
@@ -116,12 +130,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     };
 
     if (role.toLowerCase() == 'owner') {
+
       data.addAll({
         'name': _nameController.text.trim(),
         'address': _addressController.text.trim(),
         'phone': _phoneController.text.trim(),
       });
+
     } else {
+
       data.addAll({
         'bio': _bioController.text.trim(),
         'experience': _experienceController.text.trim(),
@@ -139,51 +156,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Profile Image
   Widget profileImageWidget() {
+
     return Center(
-      child: GestureDetector(
-        onTap: _pickImage,
-        child: CircleAvatar(
-          radius: 55,
-          backgroundImage: _selectedImage != null
-              ? FileImage(_selectedImage!)
-              : (profileImageUrl.isNotEmpty
-                  ? NetworkImage(profileImageUrl)
-                  : null) as ImageProvider?,
-          child: (_selectedImage == null && profileImageUrl.isEmpty)
-              ? const Icon(Icons.camera_alt, size: 35)
-              : null,
-        ),
+      child: Stack(
+        children: [
+
+          CircleAvatar(
+            radius: 60,
+            backgroundColor: mintColor,
+            backgroundImage: _selectedImage != null
+                ? FileImage(_selectedImage!)
+                : (profileImageUrl.isNotEmpty
+                ? NetworkImage(profileImageUrl)
+                : null) as ImageProvider?,
+          ),
+
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: accentColor,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.camera_alt,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
 
   Widget ownerUI() {
+
     return Column(
       children: [
 
         profileImageWidget(),
-        const SizedBox(height: 20),
+
+        const SizedBox(height: 25),
 
         TextFormField(
           controller: _nameController,
-          decoration: const InputDecoration(labelText: "Name"),
+          decoration: inputDecoration("Name"),
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         TextFormField(
           controller: _addressController,
-          decoration: const InputDecoration(labelText: "Address"),
+          decoration: inputDecoration("Address"),
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         TextFormField(
           controller: _phoneController,
-          decoration: const InputDecoration(labelText: "Phone"),
+          decoration: inputDecoration("Phone"),
           keyboardType: TextInputType.phone,
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
@@ -192,85 +233,177 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget walkerUI() {
+
     return Column(
       children: [
 
         profileImageWidget(),
-        const SizedBox(height: 20),
+
+        const SizedBox(height: 25),
 
         TextFormField(
           controller: _bioController,
-          decoration: const InputDecoration(labelText: "Bio"),
+          decoration: inputDecoration("Bio"),
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         TextFormField(
           controller: _experienceController,
-          decoration: const InputDecoration(labelText: "Experience"),
+          decoration: inputDecoration("Experience"),
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
 
         TextFormField(
           controller: _rateController,
-          decoration: const InputDecoration(labelText: "Rate per Hour"),
+          decoration: inputDecoration("Rate per Hour"),
           keyboardType: TextInputType.number,
           validator: (v) => v == null || v.isEmpty ? "Required" : null,
         ),
 
         const SizedBox(height: 20),
 
-        Row(
-          children: [
-            const Text("ID Verification Status"),
-            const Spacer(),
-            Switch(
-              value: idVerified,
-              onChanged: (value) {
-                setState(() {
-                  idVerified = value;
-                });
-              },
-            )
-          ],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+
+          child: Row(
+            children: [
+
+              const Text(
+                "ID Verified",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
+              ),
+
+              const Spacer(),
+
+              Switch(
+                activeColor: mintColor,
+                value: idVerified,
+                onChanged: (value) {
+                  setState(() {
+                    idVerified = value;
+                  });
+                },
+              ),
+            ],
+          ),
         )
       ],
     );
   }
 
+  InputDecoration inputDecoration(String label) {
+
+    return InputDecoration(
+      labelText: label,
+
+      filled: true,
+      fillColor: Colors.white,
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
     if (_isLoading) {
+
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile")),
+
+      backgroundColor: backgroundColor,
+
+      appBar: AppBar(
+        backgroundColor: primaryColor,
+        title: const Text("My Profile"),
+      ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
+
         child: Form(
           key: _formKey,
-          child: ListView(
-            children: [
 
-              role.toLowerCase() == 'owner'
-                  ? ownerUI()
-                  : walkerUI(),
+          child: Card(
+            elevation: 4,
 
-              const SizedBox(height: 30),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
 
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveProfile,
-                child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Save Profile"),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+
+              child: ListView(
+                children: [
+
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+
+                      decoration: BoxDecoration(
+                        color: mintColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+
+                      child: Text(
+                        role.toUpperCase(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  role.toLowerCase() == 'owner'
+                      ? ownerUI()
+                      : walkerUI(),
+
+                  const SizedBox(height: 30),
+
+                  ElevatedButton(
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+
+                    onPressed: _isSaving ? null : _saveProfile,
+
+                    child: _isSaving
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                      "Save Profile",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
